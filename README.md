@@ -6,13 +6,11 @@
 [![Build Status](https://travis-ci.org/mrkkrp/para.svg?branch=master)](https://travis-ci.org/mrkkrp/para)
 [![Coverage Status](https://coveralls.io/repos/mrkkrp/para/badge.svg?branch=master&service=github)](https://coveralls.io/github/mrkkrp/para?branch=master)
 
-This package replicates most part of functionality available in
-[smartparens](https://github.com/Fuco1/smartparens) package. It provides the
-following things:
+This package allows to deal with pairs efficiently. It provides the
+following:
 
 * Functions for navigation in and manipulation of S-expressions. These
-  include (`-sexp` ending is omitted from names, because this package works
-  only with S-expressions, so it's implied):
+  include:
 
     * `para-beginning-of`
     * `para-end-of`
@@ -33,6 +31,8 @@ following things:
     * `para-transpose`
     * `para-kill`
     * `para-kill-hybrid`
+    * `para-select-next`
+    * `para-select-previous`
 
 * Automatic insertion of closing pair. Para *does not* skip closing pair if
   it already exists, it inserts closing pair if you press key corresponding
@@ -79,29 +79,16 @@ following principles:
 * Clean design from the very beginning and a lot of tests covering
   *everything*.
 
-* I don't feel so cool to use shorter prefix for my functions, because the
-  only prefix you should use in Emacs Lisp is name of your
-  package. Otherwise you may get in trouble at some point. So it's called
-  `para-end-of`, not `sp-end-of-sexp` when it should be
-  `smartparens-end-of-sexp`.
-
 * Situations when something doesn't work are rare even if you use (normal,
   non-stable) MELPA. See more about this in the next section if you want
   philosophy.
 
-If you judge only on collection of features Smartparens may seem more
-advanced. However, in this project I value simplicity and clarity of code
-more than some of Smartparens' features.
-
 ## What's wrong with Smartparens?
 
-*This section reflects my personal opinion, you may have different point of
- view, of course. This doesn't mean I cannot express mine.*
-
-I was user of Smartparens for about a year. Never liked it, but couldn't
-find decent replacement. I can imagine it was better at the beginning when
-the author had more time to work on it. But with right approach and design
-maintenance doesn't take much time.
+I was user of [Smartparens](https://github.com/Fuco1/smartparens) for about
+a year. Never liked it, but couldn't find decent replacement. I can imagine
+it was better at the beginning when the author had more time to work on
+it. But with right approach and design maintenance doesn't take much time.
 
 Most Emacs Lisp packages are brilliant, from all packages I currently use I
 don't like only two: Haskell Mode (which should be rewritten from scratch
@@ -109,7 +96,7 @@ for sure and then be maintained by a dictator to avoid
 “[software rot](https://en.wikipedia.org/wiki/Software_rot)”) and
 Smartparens.
 
-So what the problem with this package? In my opinion it's bloated or in
+So what the problem with this package? In my opinion it's bloated, or in
 other words it tries to do too much. This is in conjunction with the fact
 that it needs more energy from contributors/maintainer to remain in good
 state. This is free software and it's mostly unpaid, but if you start doing
@@ -121,9 +108,9 @@ When I first tried to define my own pair I found API a bit convoluted. I
 tried to follow documentation but it didn't worked. I expressed my confusion
 in an issue. Then I was told that my approach was correct but package was
 not working for some reason. Well, these things happen even with
-state-of-art Magit. We are using packages built directly from their repo, so
-this is normal. Another thing is not normal: these problems hang and they
-are not fixed.
+state-of-art Magit. We are using packages built directly from their
+repositories, so this is normal. Another thing is not normal: these problems
+hang and they are not fixed.
 
 Packages that are built directly from repo have all reasons to practice
 [Kaizen](https://en.wikipedia.org/wiki/Kaizen): many small improvements
@@ -145,7 +132,7 @@ Then the book proposes a tip: “Don't Live with Broken Windows”.
 Author of Smartparens says that we should use MELPA Stable instead and the
 working branch may be broken in “silly ways”. Why should it ever get into
 this state for any substantial period of time? It will be even harder to
-completely “repair” it in future if you allow it now. MELPA Stable an
+completely “repair” it in future if you allow it now. MELPA Stable is an
 excuse, this does not solve the problem because most of us cannot and do not
 use MELPA Stable and I would like to see working setup that combines MELPA
 and MELPA Stable because most of the packages are perfectly usable when
@@ -162,7 +149,7 @@ put on Emacs' `load-path`, then you can require it in your init file like
 this:
 
 ```emacs-lisp
-(require 'smartparens)
+(require 'para)
 ```
 
 ## Usage

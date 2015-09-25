@@ -6,7 +6,7 @@
 ;; URL: https://github.com/mrkkrp/para
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "24.4"))
-;; Keywords: convenience
+;; Keywords: convenience text pair
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -25,31 +25,33 @@
 
 ;;; Commentary:
 
-;; This package replicates most part of functionality available in
-;; Smartparens package. It provides the following things:
+;; This package allows to deal with pairs efficiently. It provides the
+;; following:
 ;;
 ;; * Functions for navigation in and manipulation of S-expressions. These
 ;;   include:
 ;;
-;; * `para-beginning-of'
-;; * `para-end-of'
-;; * `para-down'
-;; * `para-up'
-;; * `para-backward-down'
-;; * `para-backward-up'
-;; * `para-forward'
-;; * `para-backward'
-;; * `para-next'
-;; * `para-previous'
-;; * `para-backward-unwrap'
-;; * `para-unwrap'
-;; * `para-forward-slurp'
-;; * `para-forward-barf'
-;; * `para-backward-slurp'
-;; * `para-backward-barf'
-;; * `para-transpose'
-;; * `para-kill'
-;; * `para-kill-hybrid'
+;;     * `para-beginning-of'
+;;     * `para-end-of'
+;;     * `para-down'
+;;     * `para-up'
+;;     * `para-backward-down'
+;;     * `para-backward-up'
+;;     * `para-forward'
+;;     * `para-backward'
+;;     * `para-next'
+;;     * `para-previous'
+;;     * `para-backward-unwrap'
+;;     * `para-unwrap'
+;;     * `para-forward-slurp'
+;;     * `para-forward-barf'
+;;     * `para-backward-slurp'
+;;     * `para-backward-barf'
+;;     * `para-transpose'
+;;     * `para-kill'
+;;     * `para-kill-hybrid'
+;;     * `para-select-next'
+;;     * `para-select-previous'
 ;;
 ;; * Automatic insertion of closing pair. Para *does not* skip closing pair
 ;;   if it already exists, it inserts closing pair if you press key
@@ -97,16 +99,18 @@
 ;;
 ;; * Clean design from the very beginning and a lot of tests covering
 ;;   *everything*.
-;;
-;; If you judge only on collection of features Smartparens may seem more
-;; advanced. However, in this project I value simplicity and clarity of code
-;; more than some of Smartparens' features.
 
 ;;; Code:
 
 (require 'cl-lib)
 
-;; TODO Write the entire thing here
+(defgroup para nil
+  "Clean package to deal with pairs effectively"
+  :group  'editing
+  :tag    "Para"
+  :prefix "para-"
+  :link   '(url-link :tag "GitHub" "https://github.com/mrkkrp/para"))
+
 
 (provide 'para)
 
