@@ -111,6 +111,113 @@
   :prefix "para-"
   :link   '(url-link :tag "GitHub" "https://github.com/mrkkrp/para"))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Predicates / manipulation of S-expressions' internal representation
+
+;; This section describes representation of various S-expressions in context
+;; of this package and defines several predicates and conceptual
+;; transforming functions.
+;;
+;; S-expression is represented as list containing exactly 4 elements:
+;;
+;;   (OS IS IE OE)
+;;
+;; where:
+;;
+;; * OS — “outer start” where the entire S-expression begins.
+;; * IS — “inner start” where actual content begins.
+;; * IE — “inner end” where actual content ends.
+;; * OE — “outer end” where the entire S-expression ends.
+
+(defmacro para--sexp (sexp &rest forms)
+  "Bind symbols `os', `is', `ie', and `oe' to parts of SEXP.
+
+Then evaluate FORMS in this context."
+  (declare (indent 1))
+  `(cl-destructuring-bind (os is ie oe) ,sexp
+     (ignore (list os is ie oe))
+     ,@forms))
+
+(defun para--outer-boundaries (sexp)
+  "Return list of two elements representing outer boundaries of SEXP."
+  (para--sexp sexp (list os oe)))
+
+(defun para--inner-boundaries (sexp)
+  "Return list of two elements representing inner boundaries of SEXP."
+  (para--sexp sexp (list is ie)))
+
+;; S-expressions in context of this package can be simple or
+;; compound. Simple expressions are those with equal OS and IS, IE and
+;; OE. This means that they are formed by simple symbols without any
+;; paired character sequences around them. For compound S-expressions
+;; opening characters sequence in placed between OS and IS, closing
+;; character sequences is placed between IE and OE.
+
+(defun para--simple-p (sexp)
+  "Test whether given SEXP is compound."
+  (para--sexp sexp (and (eql os is) (eql ie oe))))
+
+(defun para--compound-p (sexp)
+  "Test whether given SEXP is compound."
+  (not (para--simple-p sexp)))
+
+;; Compound expressions can be balanced or unbalanced. Unbalanced
+;; S-expression occurs when opening or closing character sequence is not
+;; found. To represent unbalanced S-expression we put NIL on place of start
+;; or end positions. Both outer and inner positions should be NIL when
+;; unbalanced S-expression is represented.
+
+(defun para--balanced-p (sexp)
+  "Test whether given SEXP is balanced."
+  (cl-every #'identity sexp))
+
+(defun para--unbalanced-p (sexp)
+  "Test whether given SEXP is unbalanced."
+  (not (para--balanced-p sexp)))
+
+;; Balanced compound S-expressions are called deep. “Deep” in our case only
+;; means that the S-expression in question has some depth, i.e. it can be
+;; traversed inward.
+
+(defun para--deep-p (sexp)
+  "Test whether given SEXP is deep."
+  (and (para--compound-p sexp)
+       (para--balanced-p sexp)))
+
+;; Once we have defined notion of deep S-expressions we can tell if one
+;; S-expression is placed inside of other.
+
+(defun para--inside-of (child parent)
+  "Test whether CHILD is inside of PARENT S-expression."
+  (cl-destructuring-bind (cs ce) (para--outer-boundaries child)
+    (cl-destructuring-bind (ps pe) (para--inner-boudaries parent)
+      (and (>= cs ps)
+           (<= ce pe)))))
+
+;; We'll often work with collections of S-expressions, thus we need a notion
+;; of normalized order for them. Normalized order is such order where every
+;; next SEXP has greater value of position where it ends (i.e. greater OE
+;; value). Since it's not possible for two S-expressions to have the same
+;; value of OE, it's always clear which of them should go first.
+
+(defun para--normalize (sexps)
+  "Return list including SEXPS in normalized order.
+
+This is destructive function; it reuses storage of SEXPS if possible."
+  (cl-sort sexps :key #'cl-fourth))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Location / textual representation of S-expressions
+
+;; This section defines how text in buffer maps to internal representation
+;; of S-expressions. Functions in this section thus define how S-expressions
+;; are textually represented in context of this package and abstract the
+;; procedure of S-expression recognition.
+;;
+;; Under no circumstances other parts of this software should attempt to
+;; parse text in buffer, otherwise the design will be broken.
 
 (provide 'para)
 
