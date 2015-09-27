@@ -12,27 +12,27 @@ following:
 * Functions for navigation in and manipulation of S-expressions. These
   include:
 
-    * `para-beginning-of`
-    * `para-end-of`
-    * `para-down`
-    * `para-up`
-    * `para-backward-down`
-    * `para-backward-up`
-    * `para-forward`
-    * `para-backward`
-    * `para-next`
-    * `para-previous`
-    * `para-backward-unwrap`
-    * `para-unwrap`
-    * `para-forward-slurp`
-    * `para-forward-barf`
-    * `para-backward-slurp`
-    * `para-backward-barf`
-    * `para-transpose`
-    * `para-kill`
-    * `para-kill-hybrid`
-    * `para-select-next`
-    * `para-select-previous`
+    * `para-beginning-of-sexp`
+    * `para-end-of-sexp`
+    * `para-down-sexp`
+    * `para-up-sexp`
+    * `para-backward-down-sexp`
+    * `para-backward-up-sexp`
+    * `para-forward-sexp`
+    * `para-backward-sexp`
+    * `para-next-sexp`
+    * `para-previous-sexp`
+    * `para-backward-unwrap-sexp`
+    * `para-unwrap-sexp`
+    * `para-forward-slurp-sexp`
+    * `para-forward-barf-sexp`
+    * `para-backward-slurp-sexp`
+    * `para-backward-barf-sexp`
+    * `para-transpose-sexp`
+    * `para-kill-sexp`
+    * `para-kill-hybrid-sexp`
+    * `para-select-next-sexp`
+    * `para-select-previous-sexp`
 
 * Automatic insertion of closing pair. Para *does not* skip closing pair if
   it already exists, it inserts closing pair if you press key corresponding
