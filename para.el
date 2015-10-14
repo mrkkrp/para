@@ -157,7 +157,7 @@ Then evaluate FORMS in this context."
 ;; character sequences is placed between IE and OE.
 
 (defun para--simple-p (sexp)
-  "Test whether given SEXP is compound."
+  "Test whether given SEXP is simple (not compound)."
   (para--sexp sexp
     (and (eql os is)
          (eql ie oe))))
@@ -241,7 +241,7 @@ This is destructive function; it reuses storage of SEXPS if possible."
 ;; Under no circumstances other parts of this software should attempt to
 ;; parse text in buffer, otherwise the design will be broken.
 
-(defun para--find-sexps (pairs backward forward n-deep)
+(defun para--find-sexps (pairs backward forward inward outward)
   "Find S-exressions around point.
 
 PAIRS is a list of cons that represent opening and closing
@@ -251,20 +251,22 @@ Other arguments of the function are optimization hints.  The
 hints help limit amount of work that needs to be done by the
 function.
 
-BACKWARD tells the system how many S-expressions before point is
-expected to be found.  FORWARD does the same for S-expressions
-after point.  N-DEEP arguments specifies how many embracing
-S-expressions is required.
+BACKWARD tells the system how many S-expressions before point
+should be found.  FORWARD does the same for S-expressions after
+point.  INWARD specifies how many levels inward this function
+should descend for every deep S-expression detected.  OUTWARD
+argument specifies how many S-expressions embracing point should
+be found.
 
 The function will return at lest that many S-expressions to
 satisfy requirements expressed in the hints.  It however may
 return more S-expressions than expected and users of the function
-should deal with that filtering returned data.
+should deal with that by filtering of returned data.
 
 Returned collection of S-expressions is guaranteed to be in
 normalized order."
   ;; TODO write the function
-  (ignore (list pairs backward forward n-deep)))
+  (ignore (list pairs backward forward inward outward)))
 
 (defvar para--searching-function #'para--find-sexps
   "Function to be used to find S-expressions around the point.
@@ -300,7 +302,7 @@ every time `para-mode' is activated.")
 
 Every element of the list is list where the first element is
 representation of pair (a cons) and the rest is collection of
-blacklisted modes.")
+symbols — names of blacklisted major modes.")
 
 (defvar para--local-pairs nil
   "List representing defined local pairs.
@@ -395,6 +397,9 @@ This variable is considered when Para is enabled globally via
   :tag  "Excluded Modes"
   :type '(repeat :tag "Major modes to exclude" symbol))
 
+(defvar para-mode-map (make-sparse-keymap)
+  "Keymap of `para-mode' minor mode.")
+
 ;;;###autoload
 (define-minor-mode para-mode
   "Toggle `para-mode' minor mode.
@@ -419,10 +424,10 @@ the mode in minibuffer."
   para-mode
   para--maybe-activate)
 
-(defmacro para--with-sexp (backward forward n-deep predicate &rest body)
+(defmacro para--with-sexp (backward forward inward outward predicate &rest body)
   "Bind symbol `sexps' to found S-expressions around point.
 
-BACKWARD, FORWARD, and N-DEEP are hints used to find
+BACKWARD, FORWARD, INWARD, and OUTWARD are hints used to find
 S-expressions around point.  You can read more about meaning of
 these parameters in documentation of `para-find-sexps'.
 
@@ -445,13 +450,18 @@ not active or no S-expressions found nothing happens."
                       para--active-pairs
                       ,backward
                       ,forward
-                      ,n-deep))))
+                      ,inward
+                      ,outward))))
        (when sexps
          ,@body))))
 
 ;; TODO Insertion of closing pair.
+
 ;; TODO Automatic deletion of pairs.
-;; TODO Wrapping, See also `delete-selection-pre-hook'.
+
+;; TODO Wrapping, See also `delete-selection-pre-hook'. Remember about
+;; several wrapping operations in a row. Also, deletions should be
+;; supported, this can get tricky.
 
 ;; Everything should be done via `post-command-hook'. This is because some
 ;; characters are self-inserting, some of them are inserted via `insert' by
