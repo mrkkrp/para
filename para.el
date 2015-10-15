@@ -254,9 +254,10 @@ function.
 BACKWARD tells the system how many S-expressions before point
 should be found.  FORWARD does the same for S-expressions after
 point.  INWARD specifies how many levels inward this function
-should descend for every deep S-expression detected.  OUTWARD
-argument specifies how many S-expressions embracing point should
-be found.
+should descend for every deep S-expression detected (it also make
+the function continue scanning until S-expression with sufficient
+level of nesting is detected).  OUTWARD argument specifies how
+many S-expressions embracing point should be found.
 
 The function will return at lest that many S-expressions to
 satisfy requirements expressed in the hints.  It however may
@@ -434,9 +435,9 @@ these parameters in documentation of `para-find-sexps'.
 Note that combination of `para--searching-function' and
 `para--active-pairs' is used to find S-expressions.
 
-Unless PREDICATE it's NIL, it is used to filter returned
-collection of S-expressions, only S-expressions satisfying the
-predicate get through.
+Unless PREDICATE is NIL, it is used to filter returned collection
+of S-expressions, only S-expressions satisfying the predicate get
+through.
 
 Once symbol `sexps' is bound, forms in BODY are evaluated in
 order inside the modified lexical environment.  If `para-mode' is
