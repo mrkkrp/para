@@ -320,10 +320,22 @@ This will be active everywhere except for modes in BLACKLIST.
 
 If START is prefix of some existing global pair, error will be
 signalled.  If exactly the same pair already exists, its
-blacklist will be merged with BLACKLIST."
-  ;; FIXME make it conform to the description
-  (push (cons (cons start end) blacklist)
-        para--global-pairs))
+blacklist will be merged with BLACKLIST.
+
+The function returns new value of `para--global-pairs'."
+  (catch 'result
+    (dolist (item para--global-pairs)
+      (cl-destructuring-bind ((start* . end*) . blacklist*) item
+        (when (and (string-equal start start*)
+                   (string-equal end end*))
+          (setf (cdr item) (cl-union blacklist* blacklist))
+          (throw 'result para--global-pairs))
+        (when (or (string-prefix-p start start*)
+                  (string-prefix-p start* start))
+          (error "Global pair starting with ‘%s’ is already defined"
+                 start*))))
+    (push (cons (cons start end) blacklist)
+          para--global-pairs)))
 
 ;;;###autoload
 (defun para-add-local-pair (start end &rest modes)
@@ -331,15 +343,37 @@ blacklist will be merged with BLACKLIST."
 
 This will be active only in modes listed in MODES.
 
-If START is prefix of some existing local pair…
-XXX Are these all “dangerous” cases? Think about it."
-  ;; FIXME make it conform to the description
-  (push (cons (cons start end) modes)
-        para--local-pairs))
+If START is prefix of some existing local pair that is active in
+some major modes listed in MODES, error will be signalled.  If
+exactly the same pair already exists, its list of modes will be
+merged with MODES.
+
+The function returns new value of `para--local-pairs'."
+  (catch 'result
+    (dolist (item para--local-pairs)
+      (cl-destructuring-bind ((start* . end*) . modes*) item
+        (when (and (string-equal start start*)
+                   (string-equal end end*))
+          (setf (cdr item) (cl-union modes* modes))
+          (throw 'result para--local-pairs))
+        (let ((overlapping-modes (cl-intersection modes* modes)))
+          (when (and (or (string-prefix-p start start*)
+                         (string-prefix-p start* start))
+                     overlapping-modes)
+            (error "Local pair starting with ‘%s’ is already defined for %s"
+                   start*
+                   (mapconcat
+                    (lambda (x)
+                      (concat "‘" (symbol-name x) "’"))
+                    overlapping-modes ", "))))))
+    (push (cons (cons start end) modes)
+          para--local-pairs)))
 
 ;;;###autoload
 (defun para-remove-global-pair (start end)
-  "Remove global pair staring with START and ending with END."
+  "Remove global pair staring with START and ending with END.
+
+Return new value of `para--global-pairs'."
   (setq para--global-pairs
         (cl-delete (cons start end)
                    para--global-pairs
@@ -347,13 +381,26 @@ XXX Are these all “dangerous” cases? Think about it."
                    :test #'equal)))
 
 ;;;###autoload
-(defun para-remove-local-pair (start end)
-  "Remove local pair starting with START and ending with END."
-  (setq para--local-pairs
-        (cl-delete (cons start end)
-                   para--local-pairs
-                   :key #'car
-                   :test #'equal)))
+(defun para-remove-local-pair (start end &rest modes)
+  "Remove local pair starting with START and ending with END.
+
+If MODES is supplied (non-NIL), only disable the local pair in
+these modes.
+
+Return new value of `para--local-pairs'."
+  (catch 'result
+    (when modes
+      (dolist (item para--local-pairs)
+        (cl-destructuring-bind ((start* . end*) . modes*) item
+          (when (and (string-equal start start*)
+                     (string-equal end end*))
+            (setf (cdr item) (cl-set-difference modes* modes))
+            (throw 'result para--local-pairs)))))
+    (setq para--local-pairs
+          (cl-delete (cons start end)
+                     para--local-pairs
+                     :key #'car
+                     :test #'equal))))
 
 (defun para--activate-pairs (enable)
   "Populate `para--active-pairs' for current buffer.
