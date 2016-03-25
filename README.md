@@ -167,6 +167,6 @@ because it's quite unique and short and the same time.
 
 ## License
 
-Copyright © 2015 Mark Karpov
+Copyright © 2015–2016 Mark Karpov
 
 Distributed under GNU GPL, version 3.
