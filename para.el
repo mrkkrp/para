@@ -211,6 +211,19 @@ Then evaluate FORMS in this context."
     (and (>= point os)
          (<= point oe))))
 
+;; We also need predicates to tell if given sexp is positioned after point
+;; and before it.
+
+(defun para--after-point (point sexp)
+  "Test whether POINT is positioned before SEXP."
+  (para--sexp sexp
+    (>= os point)))
+
+(defun para--before-point (point sexp)
+  "Test whether POINT is positioned after SEXP."
+  (para--sexp sexp
+    (<= oe point)))
+
 ;; Finally, it could be of interest if given S-expression is deep and yet
 ;; contains given point inside.
 
@@ -218,6 +231,16 @@ Then evaluate FORMS in this context."
   "Test whether POINT is inside of deep S-expression SEXP."
   (and (para--deep-p sexp)
        (para--point-in point sexp)))
+
+(defun para--after-and-deep (point sexp)
+  "Test whether POINT is positioned before deep SEXP."
+  (and (para--deep-p sexp)
+       (para-after-point point sexp)))
+
+(defun para--before-and-deep (point sexp)
+  "Test whether POINT is positioned after deep SEXP."
+  (and (para--deep-p sexp)
+       (para-after-point point sexp)))
 
 ;; We'll often work with collections of S-expressions, thus we need a notion
 ;; of normalized order for them. Normalized order is such order where every
@@ -486,6 +509,8 @@ major modes where the mode should not be active."
 (defmacro para--with-sexp (backward forward inward outward predicate &rest body)
   "Bind symbol ‘sexps’ to found S-expressions around point.
 
+Found S-expressions are always in normalized order.
+
 BACKWARD, FORWARD, INWARD, and OUTWARD are hints used to find
 S-expressions around point.  You can read more about meaning of
 these parameters in documentation of ‘para-find-sexps’.
@@ -528,15 +553,13 @@ not active or no S-expressions found, nothing happens."
 
 ;; Collection of basic editing primitives and cursor movements.
 
-;; https://ebzzry.github.io/emacs-pairs.html
-
 ;;;###autoload
 (defun para-beginning-of-sexp ()
   "Jump to beginning of the S-expression the point is in."
   (interactive)
   (para--with-sexp 0 0 0 1
     (apply-partially #'para--around-point (point))
-    (para--sexp (car sexps)
+    (para--sexp (car (last sexps))
       (goto-char is))))
 
 ;;;###autoload
@@ -545,65 +568,81 @@ not active or no S-expressions found, nothing happens."
   (interactive)
   (para--with-sexp 0 0 0 1
     (apply-partially #'para--around-point (point))
-    (para--sexp (car sexps)
+    (para--sexp (car (last sexps))
       (goto-char ie))))
 
 ;;;###autoload
 (defun para-down-sexp ()
-  "Move point forward down one level of S-expression."
+  "Move point forward and one level deeper if possible."
   (interactive)
   (para--with-sexp 0 1 1 0
-    #'para--deep-p
+    (apply-partially #'para--after-and-deep (point))
     (para--sexp (car sexps)
       (goto-char is))))
 
 ;;;###autoload
 (defun para-up-sexp ()
-  "Move point forward up one level of S-expression."
+  "Move point one level up if possible (point is placed after S-expression)."
   (interactive)
   (para--with-sexp 0 0 0 1
     (apply-partially #'para--around-point (point))
-    (para--sexp (car sexps)
+    (para--sexp (car (last sexps))
       (goto-char oe))))
 
 ;;;###autoload
 (defun para-backward-down-sexp ()
-  "Move point backward one level down of S-expression."
+  "Move point backward and one level deeper if possible."
   (interactive)
   (para--with-sexp 1 0 1 0
-    #'para--deep-p
+    (apply-partially #'para--before-and-deep (point))
+    (para--sexp (car (last sexps))
+      (goto-char is))))
+
+;;;###autoload
+(defun para-backward-up-sexp ()
+  "Move point one level up if possible (point is placed before S-expression)."
+  (interactive)
+  (para--with-sexp 0 0 0 1
+    (apply-partially #'para--around-point (point))
     (para--sexp (car (last sexps))
       (goto-char os))))
 
 ;;;###autoload
-(defun para-backward-up-sexp ()
-  "Move point backward one level up of S-expression."
-  (interactive)
-  (para--with-sexp 1 0 0 1
-    (apply-partially #'para--around-point (point))
-    (para--sexp (car sexps)
-      (goto-char os))))
-
-;;;###autoload
 (defun para-forward-sexp ()
-  "Move point one S-expression forward."
+  "Move point one S-expression forward (put point after it)."
   (interactive)
-  (para--with-sexp 0 1 0 0
-    nil ; don't filter ???
+  (para--with-sexp 0 1 1 0
+    (apply-partially #'para--after-point (point))
     (para--sexp (car sexps)
       (goto-char oe))))
 
 ;;;###autoload
 (defun para-backward-sexp ()
-  "Move point one S-expression backward."
+  "Move point one S-expression backward (put point before it)."
   (interactive)
-  (para--with-sexp 1 0 0 0
-    nil ; don't filter ???
+  (para--with-sexp 1 0 0 1
+    (apply-partially #'para--before-point (point))
     (para--sexp (car (last sexps))
       (goto-char os))))
 
-;; para-next-sexp
-;; para-previous-sexp
+;;;###autoload
+(defun para-next-sexp ()
+  "Move point one S-expression forward (put point before it)."
+  (interactive)
+  (para--with-sexp 0 1 1 0
+    (apply-partially #'para--after-point (point))
+    (para--sexp (car sexps)
+      (goto-char os))))
+
+;;;###autoload
+(defun para-previous-sexp ()
+  "Move point one S-expression backward (put point after it)."
+  (interactive)
+  (para--with-sexp 1 0 0 1
+    (apply-partially #'para--before-point (point))
+    (para--sexp (car (last sexps))
+      (goto-char oe))))
+
 ;; para-backward-unwrap-sexp
 ;; para-unwrap-sexp
 ;; para-forward-slurp-sexp
@@ -611,10 +650,44 @@ not active or no S-expressions found, nothing happens."
 ;; para-backward-slurp-sexp
 ;; para-backward-barf-sexp
 ;; para-transpose-sexp
-;; para-kill-sexp
-;; para-kill-hybrid-sexp
-;; para-select-next-sexp
-;; para-select-previous-sexp
+
+;;;###autoload
+(defun para-kill-sexp ()
+  "Kill S-expression the point is inside or the next one."
+  (interactive)
+  (para--with-sexp 0 1 0 0
+    (apply-partially #'para--after-point (point))
+    (para--sexp (car sexps)
+      (kill-region os oe))))
+
+;;;###autoload
+(defun para-kill-hybrid-sexp ()
+  "Kill text from point to end of enclosing S-expression."
+  (interactive)
+  (para--with-sexp 0 0 0 1
+    (apply-partially #'para--around-point (point))
+    (para--sexp (car (last sexps))
+      (kill-region (point) oe))))
+
+;;;###autoload
+(defun para-select-next-sexp ()
+  "Select S-expression the point is inside or the next one."
+  (interactive)
+  (para--with-sexp 0 1 0 0
+    (apply-partially #'para--after-point (point))
+    (para--sexp (car sexps)
+      (push-mark os)
+      (goto-char oe))))
+
+;;;###autoload
+(defun para-select-previous-sexp ()
+  "Select S-expression the point is inside or the previous one."
+  (interactive)
+  (para--with-sexp 1 0 0 0
+    (apply-partially #'para--before-point (point))
+    (para--sexp (car (last sexps))
+      (push-mark os)
+      (goto-char oe))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
