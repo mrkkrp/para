@@ -49,6 +49,7 @@
 ;;     * ‘para-backward-barf-sexp’
 ;;     * ‘para-transpose-sexp’
 ;;     * ‘para-kill-sexp’
+;;     * ‘para-backward-kill-sexp’
 ;;     * ‘para-kill-hybrid-sexp’
 ;;     * ‘para-select-next-sexp’
 ;;     * ‘para-select-previous-sexp’
@@ -235,12 +236,12 @@ Then evaluate FORMS in this context."
 (defun para--after-and-deep (point sexp)
   "Test whether POINT is positioned before deep SEXP."
   (and (para--deep-p sexp)
-       (para-after-point point sexp)))
+       (para--after-point point sexp)))
 
 (defun para--before-and-deep (point sexp)
   "Test whether POINT is positioned after deep SEXP."
   (and (para--deep-p sexp)
-       (para-after-point point sexp)))
+       (para--after-point point sexp)))
 
 ;; We'll often work with collections of S-expressions, thus we need a notion
 ;; of normalized order for them. Normalized order is such order where every
@@ -252,7 +253,7 @@ Then evaluate FORMS in this context."
   "Return list including SEXPS in normalized order.
 
 This is destructive function; it reuses storage of SEXPS if possible."
-  (cl-sort sexps :key #'cl-fourth))
+  (cl-sort sexps #'< :key #'cl-fourth))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -268,6 +269,15 @@ This is destructive function; it reuses storage of SEXPS if possible."
 
 (defvar para--ignore-hints nil
   "Whether to ignore optimization hints in ‘para--find-sexps’.")
+
+(defcustom para-reach 1000
+  "Number of characters to scan on each side of the point.
+
+NIL means that there is no limit — do not use this, because in
+big files it can lead to bad performance and even stack
+overflows."
+  :tag "How many characters to scan"
+  :type 'integer)
 
 (defun para--find-sexps (pairs backward forward inward outward)
   "Find S-expressions around point.
@@ -643,13 +653,13 @@ not active or no S-expressions found, nothing happens."
     (para--sexp (car (last sexps))
       (goto-char oe))))
 
-;; para-backward-unwrap-sexp
-;; para-unwrap-sexp
-;; para-forward-slurp-sexp
-;; para-forward-barf-sexp
-;; para-backward-slurp-sexp
-;; para-backward-barf-sexp
-;; para-transpose-sexp
+;; para-backward-unwrap-sexp TODO
+;; para-unwrap-sexp TODO
+;; para-forward-slurp-sexp TODO
+;; para-forward-barf-sexp TODO
+;; para-backward-slurp-sexp TODO
+;; para-backward-barf-sexp TODO
+;; para-transpose-sexp TODO
 
 ;;;###autoload
 (defun para-kill-sexp ()
@@ -659,6 +669,8 @@ not active or no S-expressions found, nothing happens."
     (apply-partially #'para--after-point (point))
     (para--sexp (car sexps)
       (kill-region os oe))))
+
+;; para-backward-kill-sexp TODO
 
 ;;;###autoload
 (defun para-kill-hybrid-sexp ()

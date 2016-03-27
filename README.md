@@ -30,6 +30,7 @@ following:
     * `para-backward-barf-sexp`
     * `para-transpose-sexp`
     * `para-kill-sexp`
+    * `para-backward-kill-sexp`
     * `para-kill-hybrid-sexp`
     * `para-select-next-sexp`
     * `para-select-previous-sexp`
