@@ -25,83 +25,83 @@
 
 ;;; Commentary:
 
-;; This package allows to deal with pairs efficiently. It provides the
+;; This package allows to deal with pairs efficiently.  It provides the
 ;; following:
 ;;
-;; * Functions for navigation in and manipulation of S-expressions. These
+;; * Functions for navigation in and manipulation of S-expressions.  These
 ;;   include:
 ;;
-;;     * ‘para-beginning-of-sexp’
-;;     * ‘para-end-of-sexp’
-;;     * ‘para-down-sexp’
-;;     * ‘para-up-sexp’
-;;     * ‘para-backward-down-sexp’
-;;     * ‘para-backward-up-sexp’
-;;     * ‘para-forward-sexp’
-;;     * ‘para-backward-sexp’
-;;     * ‘para-next-sexp’
-;;     * ‘para-previous-sexp’
-;;     * ‘para-backward-unwrap-sexp’
-;;     * ‘para-unwrap-sexp’
-;;     * ‘para-forward-slurp-sexp’
-;;     * ‘para-forward-barf-sexp’
-;;     * ‘para-backward-slurp-sexp’
-;;     * ‘para-backward-barf-sexp’
-;;     * ‘para-transpose-sexp’
-;;     * ‘para-kill-sexp’
-;;     * ‘para-backward-kill-sexp’
-;;     * ‘para-kill-hybrid-sexp’
-;;     * ‘para-select-next-sexp’
-;;     * ‘para-select-previous-sexp’
+;;     * `para-beginning-of-sexp'
+;;     * `para-end-of-sexp'
+;;     * `para-down-sexp'
+;;     * `para-up-sexp'
+;;     * `para-backward-down-sexp'
+;;     * `para-backward-up-sexp'
+;;     * `para-forward-sexp'
+;;     * `para-backward-sexp'
+;;     * `para-next-sexp'
+;;     * `para-previous-sexp'
+;;     * `para-backward-unwrap-sexp'
+;;     * `para-unwrap-sexp'
+;;     * `para-forward-slurp-sexp'
+;;     * `para-forward-barf-sexp'
+;;     * `para-backward-slurp-sexp'
+;;     * `para-backward-barf-sexp'
+;;     * `para-transpose-sexp'
+;;     * `para-kill-sexp'
+;;     * `para-backward-kill-sexp'
+;;     * `para-kill-hybrid-sexp'
+;;     * `para-select-next-sexp'
+;;     * `para-select-previous-sexp'
 ;;
-;; * Automatic insertion of closing pair. Para *does not* skip closing pair
+;; * Automatic insertion of closing pair.  Para *does not* skip closing pair
 ;;   if it already exists, it inserts closing pair if you press key
-;;   corresponding to it. It's easy to get into the habit of moving cursor
+;;   corresponding to it.  It's easy to get into the habit of moving cursor
 ;;   one character forward instead of trying to insert already inserted
-;;   character. This feature makes the package simpler, this is one of aims
+;;   character.  This feature makes the package simpler, this is one of aims
 ;;   of this project.
 ;;
-;; * Automatic deletion of complete pairs. If cursor is placed behind whole
-;;   pair and you press backspace, closing pair is deleted, as usual. If
+;; * Automatic deletion of complete pairs.  If cursor is placed behind whole
+;;   pair and you press backspace, closing pair is deleted, as usual.  If
 ;;   cursor is between paired characters and there is no text between them,
 ;;   only in that case deleting of opening pair will delete the closing pair
-;;   as well. Otherwise opening pair is deleted as usual.
+;;   as well.  Otherwise opening pair is deleted as usual.
 ;;
-;; * Wrapping of active region. If you have active region and enter paired
-;;   character the region is wrapped. Due to certain confusion that this
+;; * Wrapping of active region.  If you have active region and enter paired
+;;   character the region is wrapped.  Due to certain confusion that this
 ;;   feature can lead to (if you prefer to delete selected text when new
 ;;   text is typed), only single-character pairs work this way.
 ;;
 ;; * Some pairs, like simple single quote which often serves as apostrophe
 ;;   and can be part of identifiers in some languages (Haskell), are handled
-;;   intelligently. When it can be part of word or identifier it's not
-;;   automatically paired. You can give this behavior to other pairs, since
+;;   intelligently.  When it can be part of word or identifier it's not
+;;   automatically paired.  You can give this behavior to other pairs, since
 ;;   the package is quite flexible, but default configuration should be OK
 ;;   in most cases.
 ;;
 ;; * The package can work with multi-character pairs and pairs where opening
 ;;   and closing sequences are identical.
 ;;
-;; However, Para is not a clone of Smartparens. It's much more clean,
-;; minimalistic, and fast. In my opinion packages for basic editing should
-;; be simple, robust, and they should not ever let you down. To achieve
+;; However, Para is not a clone of Smartparens.  It's much more clean,
+;; minimalistic, and fast.  In my opinion packages for basic editing should
+;; be simple, robust, and they should not ever let you down.  To achieve
 ;; these goals Para adheres to the following principles:
 ;;
-;; * No state in your editing. Every combination of user's actions always
+;; * No state in your editing.  Every combination of user's actions always
 ;;   result in the same thing.
 ;;
-;; * No useless flashy things. Overlays in basic editing? Forget it.
+;; * No useless flashy things.  Overlays in basic editing?  I don't get it.
 ;;
-;; * Clear API for users. To define a pair you need to specify exactly two
-;;   things: opening pair and closing pair. You can specify when this pair
+;; * Clear API for users.  To define a pair you need to specify exactly two
+;;   things: opening pair and closing pair.  You can specify when this pair
 ;;   will be active too, but it's a different thing.
 ;;
 ;; * Clean design from the very beginning and a lot of tests covering
 ;;   *everything*.
 ;;
-;; * Does not increase typing latency. Some packages use hooks that are
+;; * Does not increase typing latency.  Some packages use hooks that are
 ;;   executed after every key press and put heavy code there, and then it
-;;   sums up and you get laggy text editor. It can get slower than IDE —
+;;   sums up and you get laggy text editor.  It can get slower than IDE —
 ;;   certainly we can do better.
 
 ;;; Code:
@@ -135,7 +135,7 @@
 ;; * OE — “outer end” where the entire S-expression ends.
 
 (defmacro para--sexp (sexp &rest forms)
-  "Bind symbols ‘os’, ‘is’, ‘ie’, and ‘oe’ to parts of SEXP.
+  "Bind symbols `os', `is', `ie', and `oe' to parts of SEXP.
 
 Then evaluate FORMS in this context."
   (declare (indent 1))
@@ -172,7 +172,7 @@ Then evaluate FORMS in this context."
 
 ;; Compound expressions can be balanced or unbalanced. Unbalanced
 ;; S-expression occurs when opening or closing character sequence is not
-;; found. To represent unbalanced S-expression we put NIL on place of start
+;; found. To represent unbalanced S-expression we put NIL in place of start
 ;; or end positions. Both outer and inner positions should be NIL when
 ;; unbalanced S-expression is represented.
 
@@ -268,7 +268,7 @@ This is destructive function; it reuses storage of SEXPS if possible."
 ;; parse text in buffer, otherwise the design will be broken.
 
 (defvar para--ignore-hints nil
-  "Whether to ignore optimization hints in ‘para--find-sexps’.")
+  "Whether to ignore optimization hints in `para--find-sexps'.")
 
 (defcustom para-reach 1000
   "Number of characters to scan on each side of the point.
@@ -291,13 +291,13 @@ function.
 
 BACKWARD tells the system how many S-expressions before point
 should be found.  FORWARD does the same for S-expressions after
-point.  INWARD specifies how many levels inward this function
-should descend for every deep S-expression detected (it also makes
-the function continue scanning until S-expression with sufficient
-level of nesting is detected).  OUTWARD argument specifies how
-many S-expressions embracing point should be found.
+point.  INWARD specifies how many levels of nesting this function
+should find (it makes the function continue scanning until
+S-expression with sufficient level of nesting is detected).
+OUTWARD argument specifies how many S-expressions embracing point
+should be found.
 
-If value of ‘para--ignore-hints’ is non-NIL this function ignores
+If value of `para--ignore-hints' is non-NIL this function ignores
 all hints and scans entire buffer (this is useful for testing,
 but generally a bad idea for real-world usage).
 
@@ -315,7 +315,7 @@ normalized order."
   "Function to be used to find S-expressions around the point.
 
 The function is called with four arguments, see description of
-‘para--find-sexps’ for more information about their meaning and
+`para--find-sexps' for more information about their meaning and
 expected behavior of the function.
 
 This function should not move point or have any other
@@ -328,15 +328,15 @@ side-effects.")
 ;; This section describes how pairs are defined and undefined. The package
 ;; allows to define global pairs that work everywhere except for some modes
 ;; (blacklisted modes) and pairs that work selectively, only in specified
-;; major modes. When ‘para-mode’ is activated exact set of active pairs is
-;; formed and stored in ‘para--active-pairs’ variable. This variable is then
+;; major modes. When `para-mode' is activated exact set of active pairs is
+;; formed and stored in `para--active-pairs' variable. This variable is then
 ;; used by most other commands.
 
 (defvar para--active-pairs nil
   "List of cons representing active pairs in current buffer.
 
-This list is recalculated by ‘para--activate-pairs’, normally
-every time ‘para-mode’ is activated.")
+This list is recalculated by `para--activate-pairs', normally
+every time `para-mode' is activated.")
 
 (make-variable-buffer-local 'para--active-pairs)
 
@@ -364,7 +364,7 @@ If START is prefix of some existing global pair, error will be
 signalled.  If exactly the same pair already exists, its
 blacklist will be merged with BLACKLIST.
 
-The function returns new value of ‘para--global-pairs’."
+The function returns new value of `para--global-pairs'."
   (catch 'result
     (dolist (item para--global-pairs)
       (cl-destructuring-bind ((start* . end*) . blacklist*) item
@@ -390,7 +390,7 @@ some major modes listed in MODES, error will be signalled.  If
 exactly the same pair already exists, its list of modes will be
 merged with MODES.
 
-The function returns new value of ‘para--local-pairs’."
+The function returns new value of `para--local-pairs'."
   (catch 'result
     (dolist (item para--local-pairs)
       (cl-destructuring-bind ((start* . end*) . modes*) item
@@ -415,7 +415,7 @@ The function returns new value of ‘para--local-pairs’."
 (defun para-remove-global-pair (start end)
   "Remove global pair staring with START and ending with END.
 
-Return new value of ‘para--global-pairs’."
+Return new value of `para--global-pairs'."
   (setq para--global-pairs
         (cl-delete (cons start end)
                    para--global-pairs
@@ -429,7 +429,7 @@ Return new value of ‘para--global-pairs’."
 If MODES is supplied (non-NIL), only disable the local pair in
 these modes.
 
-Return new value of ‘para--local-pairs’."
+Return new value of `para--local-pairs'."
   (catch 'result
     (when modes
       (dolist (item para--local-pairs)
@@ -445,9 +445,9 @@ Return new value of ‘para--local-pairs’."
                      :test #'equal))))
 
 (defun para--activate-pairs (enable)
-  "Populate ‘para--active-pairs’ for current buffer.
+  "Populate `para--active-pairs' for current buffer.
 
-If ENABLE has non-NIL value, set value of ‘para--active-pairs’ to
+If ENABLE has non-NIL value, set value of `para--active-pairs' to
 list of active pairs.  Otherwise set it to NIL."
   (setq
    para--active-pairs
@@ -471,40 +471,40 @@ list of active pairs.  Otherwise set it to NIL."
 
 ;; This section handles interactive aspects of editing: auto-insertion and
 ;; auto-deletion of pairs, wrapping. The section also defines minor mode
-;; ‘para-mode’.
+;; `para-mode'.
 
 ;;;###autoload
 (defcustom para-active-in-minibuffer t
-  "Whether to activate ‘para-mode’ in minibuffer."
+  "Whether to activate `para-mode' in minibuffer."
   :tag  "Enable Para Mode in Minibuffer"
   :type 'boolean)
 
 ;;;###autoload
 (defcustom para-excluded-modes nil
-  "List of major modes for which ‘para-mode’ should not be activated.
+  "List of major modes for which `para-mode' should not be activated.
 
 This variable is considered when Para is enabled globally via
-‘para-global-mode’."
+`para-global-mode'."
   :tag  "Excluded Modes"
   :type '(repeat :tag "Major modes to exclude" symbol))
 
 (defvar para-mode-map (make-sparse-keymap)
-  "Keymap of ‘para-mode’ minor mode.")
+  "Keymap of `para-mode' minor mode.")
 
 ;;;###autoload
 (define-minor-mode para-mode
-  "Toggle ‘para-mode’ minor mode.
+  "Toggle `para-mode' minor mode.
 
-With a prefix argument ARG, enable ‘para-mode’ if ARG is
+With a prefix argument ARG, enable `para-mode' if ARG is
 positive, and disable it otherwise."
   nil " Para" para-mode-map
   (para--activate-pairs para-mode))
 
 (defun para--maybe-activate ()
-  "Activate ‘para-mode’ in current buffer.
+  "Activate `para-mode' in current buffer.
 
-Value of ‘para-active-in-minibuffer’ controls whether to activate
-the mode in minibuffer.  ‘para-excluded-modes’ contains names of
+Value of `para-active-in-minibuffer' controls whether to activate
+the mode in minibuffer.  `para-excluded-modes' contains names of
 major modes where the mode should not be active."
   (unless (or (and (minibufferp)
                    (not para-active-in-minibuffer))
@@ -517,23 +517,23 @@ major modes where the mode should not be active."
   para--maybe-activate)
 
 (defmacro para--with-sexp (backward forward inward outward predicate &rest body)
-  "Bind symbol ‘sexps’ to found S-expressions around point.
+  "Bind symbol `sexps' to found S-expressions around point.
 
 Found S-expressions are always in normalized order.
 
 BACKWARD, FORWARD, INWARD, and OUTWARD are hints used to find
 S-expressions around point.  You can read more about meaning of
-these parameters in documentation of ‘para-find-sexps’.
+these parameters in documentation of `para-find-sexps'.
 
-Note that combination of ‘para--searching-function’ and
-‘para--active-pairs’ is used to find S-expressions.
+Note that combination of `para--searching-function' and
+`para--active-pairs' is used to find S-expressions.
 
 Unless PREDICATE is NIL, it is used to filter returned collection
 of S-expressions, only S-expressions satisfying the predicate get
 through.
 
-Once symbol ‘sexps’ is bound, forms in BODY are evaluated in
-order inside the modified lexical environment.  If ‘para-mode’ is
+Once symbol `sexps' is bound, forms in BODY are evaluated in
+order inside the modified lexical environment.  If `para-mode' is
 not active or no S-expressions found, nothing happens."
   (declare (indent defun))
   `(when para-mode
@@ -553,7 +553,7 @@ not active or no S-expressions found, nothing happens."
 
 ;; TODO Automatic deletion of pairs.
 
-;; TODO Wrapping, See also ‘delete-selection-pre-hook’. Remember about
+;; TODO Wrapping, See also `delete-selection-pre-hook'. Remember about
 ;; several wrapping operations in a row. Also, deletions should be
 ;; supported, this can get tricky.
 
@@ -710,8 +710,8 @@ not active or no S-expressions found, nothing happens."
 ;; file has been made because I want to provide decent editing experience by
 ;; default without requiring any additional effort from user. People with
 ;; special requirements should edit this configuration with help of
-;; ‘para-add-global-pair’, ‘para-add-local-pair’, ‘para-remove-global-pair’,
-;; and ‘para-remove-local-pair’.
+;; `para-add-global-pair', `para-add-local-pair', `para-remove-global-pair',
+;; and `para-remove-local-pair'.
 ;;
 ;; If you're interested in addition of new pairs to the package, this is
 ;; where to put your definitions:
